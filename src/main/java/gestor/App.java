@@ -321,13 +321,18 @@ public class App{
                         String Nombre = input.next();
 
                         ArrayList<Equipo> Equipos = obtenerListaEquipos(conn);
-
+			boolean existeEquipo = false;
                         for(Equipo equipo : Equipos){
                             if(equipo.nombre.equals(Nombre)){
+				existeEquipo = true;
+
                                 System.out.println("Ya existe un equipo con ese nombre.");
                                 break;
                             }
                         }
+			if(existeEquipo){
+				break;
+			}
 
                         System.out.println("El equipo "+Nombre+" ha sido registrado.");
                         st.executeUpdate("INSERT INTO equipo(nombre) VALUES('" + Nombre + "')");
