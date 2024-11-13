@@ -1,10 +1,15 @@
 package gestor;
-import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Scanner;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 class Equipo{
     public String nombre;
@@ -66,6 +71,7 @@ public class App{
             jugadoresQuery.close();
         }catch(Exception e){
             System.out.println("ERROR: No se pudo obtener lista de jugadores.");
+            throw new RuntimeException(e);
         }
         return Jugadores;
     };
@@ -158,11 +164,16 @@ public class App{
                                 System.out.println("DNI invalido.");
                                 break;
                             };
+                            boolean dniExistente = false;
                             for(Jugador jugador : Jugadores){
                                 if(jugador.dni == DNI){
                                     System.out.println("Un jugador ya existe con ese DNI.");
+                                    dniExistente = true;
                                     break;
                                 }
+                            }
+                            if(dniExistente){
+                                break;
                             }
                         } catch (NumberFormatException e){
                             System.out.println("DNI invalido.");
@@ -233,7 +244,7 @@ public class App{
                         }
 
                         System.out.println("El jugador "+jugadorAfectado.nombre+" fue eliminado del registro.");
-                        st.executeUpdate("DELETE FROM jugador_partido WHERE dni_partido = " + DNI);
+                        st.executeUpdate("DELETE FROM jugador_partido WHERE dni_jugador = " + DNI);
                         st.executeUpdate("DELETE FROM jugador WHERE dni = " + DNI);
                         /* TODO: hacer QUERY para eliminar el JUGADOR de la BD.
                                La variable a utilizar es "DNI".
@@ -394,7 +405,7 @@ public class App{
 
                         System.out.println("El jugador "+jugadorSinEquipo.nombre+" ha sido integrado a "+equipoIntegrador.nombre+".");
 
-                        st.executeUpdate("UPDATE jugador SET equipo = '" + equipoJugador + "' WHERE dni = " + DNI);
+                        st.executeUpdate("UPDATE jugador SET nombre_equipo = '" + equipoJugador + "' WHERE dni = " + DNI);
                         /* TODO: hacer QUERY para cambiar los datos del JUGADOR en la BD.
                                El registro del JUGADOR puede ser obtenido con la variable "DNI".
                                El campo a cambiar es "equipo", el cual debe ser cambiado a equipoJugador.
@@ -466,7 +477,7 @@ public class App{
 
                         System.out.println("El jugador "+jugadorAfectado.nombre+" ha sido removido del equipo "+equipoAfectado.nombre+".");
 
-                        st.executeUpdate("UPDATE jugador SET equipo = NULL WHERE dni = " + DNI);
+                        st.executeUpdate("UPDATE jugador SET nombre_equipo = NULL WHERE dni = " + DNI);
                         /* TODO: hacer QUERY para cambiar los datos del JUGADOR en la BD.
                                El registro del JUGADOR puede ser obtenido con la variable "DNI".
                                El campo a cambiar es "equipo", el cual debe ser asignado a null.
@@ -501,6 +512,13 @@ public class App{
                             System.out.println("Ese equipo no se encuentra en el registro.");
                             break;
                         }
+                        ResultSet existePartido = st.executeQuery("SELECT COUNT(*) FROM partido WHERE equipo1 = '" + equipoAfectado.nombre + "' OR equipo2 = '" + equipoAfectado.nombre + "'");
+                        existePartido.next();
+                        if(existePartido.getInt(1) != 0){
+                            System.out.println("Equipo no se puede borrar porque ya jugo un partido. Borre los partidos para borrar el equipo");
+                            break;
+                        }
+                        
 
                         for(Jugador jugador : Jugadores){
                             if(jugador.nombre_equipo.equals(equipoAfectado.nombre)){
