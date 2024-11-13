@@ -659,7 +659,7 @@ public class App{
                 System.out.println("2. Crear un partido.");
                 System.out.println("3. Editar un partido");
                 System.out.println("4. Borrar un partido");
-                System.out.println("5. Ver detalles del partido");
+                System.out.println("5. Ver detalles de un partido");
                 System.out.println("0. Volver hacia atras.");
                 option = input.next();
                 switch (option) {
